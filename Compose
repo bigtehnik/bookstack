@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  bookstack:
+    image: lscr.io/linuxserver/bookstack:latest
+    container_name: bookstack
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+
+      - APP_URL=http://192.168.55.44:6875
+      - TRUSTED_PROXIES=*
+
+      - APP_KEY=base64:6pvbBR7aSZTHYpJFocXY7OaxpNfUwwb5r11WQByXwSM= #сгенерировать "docker run -it --rm --entrypoint /bin/bash lscr.io/linuxserver/bookstack:latest appkey"
+
+      - DB_HOST=mariadb
+      - DB_PORT=3306
+      - DB_DATABASE=bookstack
+      - DB_USERNAME=bookstack
+      - DB_PASSWORD=strong_password_here
+
+    volumes:
+      - ./bookstack/config:/config
+    ports:
+      - "6875:80"
+
+  mariadb:
+    image: mariadb:11
+    container_name: bookstack_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password_here
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=strong_password_here
+      - MARIADB_DISABLE_IO_URING=1
+    volumes:
+      - ./bookstack/db:/var/lib/mysql
+    ports:
+      - "3307:3306"
