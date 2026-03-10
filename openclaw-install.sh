@@ -1,53 +1,72 @@
 #!/bin/bash
 
-# Выход при ошибке
+# Выход при любой ошибке
 set -e
 
-# Проверка, запущен ли скрипт от root
+# Цвета
+BLUE="\033[1;34m"
+GREEN="\033[1;32m"
+YELLOW="\033[1;33m"
+RED="\033[1;31m"
+NC="\033[0m" # без цвета
+
+# Функции для вывода
+info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}[OK]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+error() { echo -e "${RED}[ERROR]${NC} $1"; }
+
+# Проверка root
 if [ "$EUID" -ne 0 ]; then
-  echo "Пожалуйста, запустите этот скрипт от имени root (sudo)."
-  exit
+  error "Пожалуйста, запустите этот скрипт от имени root (sudo)."
+  exit 1
 fi
 
-echo "### Шаг 1: Ставим  Node.js 22 ###"
+info "### Шаг 1: Устанавливаем Node.js 22 ###"
 
-# Установка curl, если его нет
 apt-get update
-apt-get install -y curl
+apt-get install -y curl gnupg
 
-# Добавление репозитория NodeSource и установка
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs
 
-# Проверка установки Node.js
-echo "Установленная версия Node.js:"
-node --version
+success "Node.js установлен. Версия: $(node --version)"
 
-echo -e "\n### Шаг 2: Настройка глобальной npm директории ###"
+info "### Шаг 2: Настройка глобальной npm директории ###"
 
-# Создание директории
 mkdir -p /root/.npm-global
-
-# Конфигурация npm
 npm config set prefix '/root/.npm-global'
 
-# Добавление пути в .bashrc (для будущих сессий)
 if ! grep -q "export PATH=/root/.npm-global/bin:\$PATH" ~/.bashrc; then
     echo 'export PATH=/root/.npm-global/bin:$PATH' >> ~/.bashrc
-    echo "Путь добавлен в ~/.bashrc"
+    success "Путь npm добавлен в ~/.bashrc"
 else
-    echo "Путь уже присутствует в ~/.bashrc"
+    info "Путь npm уже присутствует в ~/.bashrc"
 fi
 
-# Применение пути для текущей сессии скрипта
 export PATH=/root/.npm-global/bin:$PATH
+success "PATH применён для текущей сессии"
 
-echo -e "\n### Шаг 3: Установка OpenClaw и проверка версии ###"
+info "### Шаг 3: Установка OpenClaw ###"
 
+if [ -d "/root/.npm-global/lib/node_modules/openclaw" ]; then
+    warn "Старая версия OpenClaw найдена, удаляем..."
+    rm -rf /root/.npm-global/lib/node_modules/openclaw
+fi
+
+info "Очистка кеша npm..."
+npm cache clean --force
+
+info "Скачиваем и устанавливаем последнюю версию OpenClaw..."
 npm install -g openclaw@latest
 
-echo "Проверка версии OpenClaw:"
-openclaw --version
+success "OpenClaw установлен успешно!"
+success "Версия OpenClaw: $(openclaw --version)"
 
-echo -e "\n### Установка успешно завершена! ###"
-echo "Примечание: Чтобы команда 'openclaw' была доступна в новом терминале, перезапустите сессию или выполните: source ~/.bashrc"
+info "### Готово! ###"
+echo -e "\nКоманда для запуска OpenClaw:"
+echo -e "${BLUE}openclaw onboard${NC}"
+read -p "Нажмите Enter, чтобы подтвердить и запустить..."  
+
+openclaw onboard
+success "Команда выполнена."
