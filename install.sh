@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Выход при ошибке
+# Выход при любой ошибке
 set -e
 
-# Проверка, запущен ли скрипт от root
+# Проверка, что скрипт запущен от root
 if [ "$EUID" -ne 0 ]; then
   echo "Пожалуйста, запустите этот скрипт от имени root (sudo)."
-  exit
+  exit 1
 fi
 
-echo "### Шаг 1: Ставим  Node.js 22 ###"
+echo "### Шаг 1: Ставим Node.js 22 ###"
 
-# Установка curl, если его нет
+# Установка curl и gnupg, если их нет
 apt-get update
-apt-get install -y curl
+apt-get install -y curl gnupg
 
-# Добавление репозитория NodeSource и установка
+# Добавление репозитория NodeSource и установка Node.js
 curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 apt-get install -y nodejs
 
@@ -44,8 +44,19 @@ export PATH=/root/.npm-global/bin:$PATH
 
 echo -e "\n### Шаг 3: Установка OpenClaw и проверка версии ###"
 
+# Если OpenClaw уже установлен, удаляем старую версию
+if [ -d "/root/.npm-global/lib/node_modules/openclaw" ]; then
+    echo "Старая версия OpenClaw найдена, удаляем..."
+    rm -rf /root/.npm-global/lib/node_modules/openclaw
+fi
+
+# Очистка кеша npm на всякий случай
+npm cache clean --force
+
+# Установка последней версии OpenClaw
 npm install -g openclaw@latest
 
+# Проверка версии
 echo "Проверка версии OpenClaw:"
 openclaw --version
 
