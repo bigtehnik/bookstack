@@ -60,12 +60,5 @@ npm install -g openclaw@latest
 echo "Проверка версии OpenClaw:"
 openclaw --version
 
-echo -e "\n### Установка успешно завершена! ###"
-echo "Команда для запуска OpenClaw будет показана ниже."
+echo -e "\n### Установка успешно завершена! выполняем команду openclaw onboard ###"
 
-# Показываем команду и ждём Enter
-echo -e "\nКоманда: openclaw onboard"
-read -p "Нажмите Enter, чтобы подтвердить и запустить..."  
-
-# После Enter выполняем команду
-openclaw onboard
