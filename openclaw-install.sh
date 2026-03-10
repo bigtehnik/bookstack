@@ -9,7 +9,7 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
-echo "### Шаг 1: Установка Node.js 22 ###"
+echo "### Шаг 1: Ставим  Node.js 22 ###"
 
 # Установка curl, если его нет
 apt-get update
