@@ -1,40 +1,53 @@
 #!/bin/bash
 
-# Проверка на запуск от root
+# Выход при ошибке
+set -e
+
+# Проверка, запущен ли скрипт от root
 if [ "$EUID" -ne 0 ]; then
-  echo "Пожалуйста, запустите скрипт от имени root (sudo)."
-  exit 1
+  echo "Пожалуйста, запустите этот скрипт от имени root (sudo)."
+  exit
 fi
 
-echo "=== ШагА 1: Установка Node.js 22 ==="
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt install -y nodejs
+echo "### Шаг 1: Установка Node.js 22 ###"
 
-echo -e "\n=== Шаг 2: Настройка глобальной npm директории ==="
+# Установка curl, если его нет
+apt-get update
+apt-get install -y curl
+
+# Добавление репозитория NodeSource и установка
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt-get install -y nodejs
+
+# Проверка установки Node.js
+echo "Установленная версия Node.js:"
+node --version
+
+echo -e "\n### Шаг 2: Настройка глобальной npm директории ###"
+
+# Создание директории
 mkdir -p /root/.npm-global
+
+# Конфигурация npm
 npm config set prefix '/root/.npm-global'
 
-# Добавляем путь в .bashrc, если его еще нет
+# Добавление пути в .bashrc (для будущих сессий)
 if ! grep -q "export PATH=/root/.npm-global/bin:\$PATH" ~/.bashrc; then
     echo 'export PATH=/root/.npm-global/bin:$PATH' >> ~/.bashrc
+    echo "Путь добавлен в ~/.bashrc"
+else
+    echo "Путь уже присутствует в ~/.bashrc"
 fi
 
-# Применяем изменения для текущей сессии скрипта
+# Применение пути для текущей сессии скрипта
 export PATH=/root/.npm-global/bin:$PATH
-source ~/.bashrc
 
-echo -e "\n=== Шаг 3: Установка OpenClaw и проверка версии ==="
+echo -e "\n### Шаг 3: Установка OpenClaw и проверка версии ###"
+
 npm install -g openclaw@latest
+
+echo "Проверка версии OpenClaw:"
 openclaw --version
 
-echo -e "\n=== Готово ==="
-read -p "для старта нажмите ENTER" -r
-
-# Вставка команды в терминал для пользователя
-# -e включает readline (редактирование)
-# -i задает начальный текст
-echo -e "\nКоманда вставлена. Нажмите Enter для запуска или отредактируйте:"
-read -e -p "> " -i "openclaw onboard" user_command
-
-# Запуск того, что ввел пользователь
-eval "$user_command"
+echo -e "\n### Установка успешно завершена! ###"
+echo "Примечание: Чтобы команда 'openclaw' была доступна в новом терминале, перезапустите сессию или выполните: source ~/.bashrc"
