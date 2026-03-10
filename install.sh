@@ -39,7 +39,7 @@ else
     echo "Путь уже присутствует в ~/.bashrc"
 fi
 
-# Применение пути для текущей сессии скрипта
+# Применение пути для текущей сессии
 export PATH=/root/.npm-global/bin:$PATH
 
 echo -e "\n### Шаг 3: Установка OpenClaw и проверка версии ###"
@@ -50,7 +50,7 @@ if [ -d "/root/.npm-global/lib/node_modules/openclaw" ]; then
     rm -rf /root/.npm-global/lib/node_modules/openclaw
 fi
 
-# Очистка кеша npm на всякий случай
+# Очистка кеша npm
 npm cache clean --force
 
 # Установка последней версии OpenClaw
@@ -61,4 +61,11 @@ echo "Проверка версии OpenClaw:"
 openclaw --version
 
 echo -e "\n### Установка успешно завершена! ###"
-echo "Примечание: Чтобы команда 'openclaw' была доступна в новом терминале, перезапустите сессию или выполните: source ~/.bashrc"
+echo "Команда для запуска OpenClaw будет показана ниже."
+
+# Показываем команду и ждём Enter
+echo -e "\nКоманда: openclaw onboard"
+read -p "Нажмите Enter, чтобы подтвердить и запустить..."  
+
+# После Enter выполняем команду
+openclaw onboard
