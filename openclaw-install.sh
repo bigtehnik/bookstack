@@ -37,8 +37,18 @@ chmod +x /etc/profile.d/npm-global.sh
 
 export PATH=/root/.npm-global/bin:$PATH
 
-echo "=== Установка OpenClaw ==="
-NODE_OPTIONS="--max-old-space-size=256" npm install -g openclaw@latest
+echo "=== Очистка возможной сломанной установки OpenClaw ==="
+rm -rf /root/.npm-global/lib/node_modules/openclaw || true
+rm -rf /root/.npm-global/lib/node_modules/.openclaw-* || true
+
+echo "=== Установка OpenClaw (первая попытка) ==="
+if ! NODE_OPTIONS="--max-old-space-size=256" npm install -g openclaw@latest; then
+  echo "⚠️ Первая попытка не удалась. Чищу и повторяю..."
+  rm -rf /root/.npm-global/lib/node_modules/openclaw || true
+  rm -rf /root/.npm-global/lib/node_modules/.openclaw-* || true
+  echo "=== Установка OpenClaw (вторая попытка) ==="
+  NODE_OPTIONS="--max-old-space-size=256" npm install -g openclaw@latest
+fi
 
 echo "=== Проверка версии OpenClaw ==="
 openclaw --version
