@@ -9,16 +9,24 @@ echo "=== Настройка глобальной npm директории ==="
 mkdir -p /root/.npm-global
 npm config set prefix '/root/.npm-global'
 
-if ! grep -q "/root/.npm-global/bin" ~/.bashrc; then
-  echo 'export PATH=/root/.npm-global/bin:$PATH' >> ~/.bashrc
-fi
+# Гарантированный PATH для всех оболочек
+echo 'export PATH=/root/.npm-global/bin:$PATH' >> /root/.bashrc
+echo 'export PATH=/root/.npm-global/bin:$PATH' > /etc/profile.d/npm-global.sh
+chmod +x /etc/profile.d/npm-global.sh
 
-source ~/.bashrc
+# Гарантированный PATH в текущем процессе
+export PATH=/root/.npm-global/bin:$PATH
 
 echo "=== Установка OpenClaw ==="
 npm install -g openclaw@latest
 
 echo "=== Проверка версии OpenClaw ==="
+if ! command -v openclaw >/dev/null 2>&1; then
+  echo "❌ openclaw не найден в PATH"
+  echo "PATH: $PATH"
+  exit 1
+fi
+
 openclaw --version
 
 echo "=== Инициализация OpenClaw ==="
