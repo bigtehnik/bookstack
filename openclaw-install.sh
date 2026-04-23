@@ -58,7 +58,7 @@ info "Очистка кеша npm..."
 npm cache clean --force
 
 info "Скачиваем и устанавливаем последнюю версию OpenClaw..."
-npm install -g openclaw@latest
+npm install -g openclaw@2026.3.31
 
 success "OpenClaw установлен успешно!"
 success "Версия OpenClaw: $(openclaw --version)"
