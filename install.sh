@@ -54,7 +54,7 @@ fi
 npm cache clean --force
 
 # Установка последней версии OpenClaw
-npm install -g openclaw@2026.4.2
+npm install -g openclaw@2026.4.22
 
 # Проверка версии
 echo "Проверка версии OpenClaw:"
